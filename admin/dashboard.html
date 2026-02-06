@@ -1,0 +1,108 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | Native Boarding House</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+</head>
+<body data-page="admin-dashboard">
+  <header class="header">
+    <div class="container nav">
+      <a class="logo" href="dashboard.html">Admin Panel</a>
+      <nav class="nav-links" aria-label="Admin">
+        <a href="dashboard.html">Overview</a>
+        <a href="boarding-houses.html">Boarding Houses</a>
+        <a href="users.html">Users</a>
+        <a href="../user/browse.html">Browse</a>
+      </nav>
+      <div class="nav-cta">
+        <span class="badge" data-user-badge>Admin</span>
+        <a class="btn btn-ghost" data-logout href="#">Logout</a>
+        <button class="nav-toggle" aria-label="Open menu">Menu</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="section">
+    <div class="container">
+      <div class="section-header">
+        <div>
+          <h2>Admin Overview</h2>
+          <p>Real-time stats and landing page controls.</p>
+        </div>
+      </div>
+
+      <div class="grid" id="admin-stats">
+        <div class="card"><div class="card-body"><h3 class="card-title">Boarding Houses</h3><p id="stat-bh">0</p></div></div>
+        <div class="card"><div class="card-body"><h3 class="card-title">Pending Applications</h3><p id="stat-apps">0</p></div></div>
+        <div class="card"><div class="card-body"><h3 class="card-title">Registered Users</h3><p id="stat-users">0</p></div></div>
+      </div>
+
+      <section class="section">
+        <div class="section-header">
+          <div>
+            <h2>Landing Page Editor</h2>
+            <p>Update hero content and contact information instantly.</p>
+          </div>
+        </div>
+        <div class="form-card">
+          <form id="landing-form">
+            <div>
+              <label for="heroTitle">Hero Title</label>
+              <input id="heroTitle" name="heroTitle" type="text" required>
+            </div>
+            <div>
+              <label for="heroSubtitle">Hero Subtitle</label>
+              <textarea id="heroSubtitle" name="heroSubtitle" required></textarea>
+            </div>
+            <div>
+              <label for="heroImage">Hero Image URL</label>
+              <input id="heroImage" name="heroImage" type="url" required>
+            </div>
+            <div class="form-grid">
+              <div>
+                <label for="contactEmail">Contact Email</label>
+                <input id="contactEmail" name="contactEmail" type="email" required>
+              </div>
+              <div>
+                <label for="contactPhone">Contact Phone</label>
+                <input id="contactPhone" name="contactPhone" type="text" required>
+              </div>
+            </div>
+            <div>
+              <label for="footerText">Footer Text</label>
+              <input id="footerText" name="footerText" type="text" required>
+            </div>
+            <p class="form-hint" data-status></p>
+            <button class="btn" type="submit">Save Landing Content</button>
+          </form>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-header">
+          <div>
+            <h2>Pending Applications</h2>
+            <p>Approve or reject user applications in real time.</p>
+          </div>
+        </div>
+        <div id="admin-applications"></div>
+      </section>
+    </div>
+  </main>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+  <script src="../assets/js/firebase-config.js"></script>
+  <script src="../assets/js/main.js"></script>
+  <script src="../assets/js/auth-check.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

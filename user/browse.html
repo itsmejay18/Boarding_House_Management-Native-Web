@@ -1,0 +1,126 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Browse Boarding Houses</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+</head>
+<body data-page="user-browse">
+  <header class="header">
+    <div class="container nav">
+      <a class="logo" href="../index.html">Native Boarding House</a>
+      <nav class="nav-links" aria-label="User">
+        <a href="../index.html">Home</a>
+        <a href="browse.html">Browse</a>
+        <a href="dashboard.html">Dashboard</a>
+      </nav>
+      <div class="nav-cta">
+        <span class="badge" data-user-badge>Guest</span>
+        <a class="btn btn-ghost" data-logout href="#">Logout</a>
+        <button class="nav-toggle" aria-label="Open menu">Menu</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="section">
+    <div class="container">
+      <div class="section-header">
+        <div>
+          <h2>Browse Available Boarding Houses</h2>
+          <p>Filter by price, location, and amenities.</p>
+        </div>
+      </div>
+
+      <div class="notice" id="contact-info">Need help? Contact support at hello@nativebh.com.</div>
+
+      <div class="form-card" style="margin-bottom: 24px;">
+        <form id="filter-form">
+          <div class="form-grid">
+            <div>
+              <label for="search">Search</label>
+              <input id="search" name="search" type="text" placeholder="Search by name or location">
+            </div>
+            <div>
+              <label for="location">Location</label>
+              <input id="location" name="location" type="text" placeholder="City or barangay">
+            </div>
+            <div>
+              <label for="minPrice">Min Price</label>
+              <input id="minPrice" name="minPrice" type="number" min="0">
+            </div>
+          <div>
+            <label for="maxPrice">Max Price</label>
+            <input id="maxPrice" name="maxPrice" type="number" min="0">
+          </div>
+          <div>
+            <label for="sortBy">Sort By</label>
+            <select id="sortBy" name="sortBy">
+              <option value="newest">Newest</option>
+              <option value="price_low">Price: Low to High</option>
+              <option value="price_high">Price: High to Low</option>
+            </select>
+          </div>
+        </div>
+          <div>
+            <label>Amenities</label>
+            <div class="tag-list">
+              <label><input type="checkbox" value="wifi" name="amenities"> Wifi</label>
+              <label><input type="checkbox" value="ac" name="amenities"> AC</label>
+              <label><input type="checkbox" value="parking" name="amenities"> Parking</label>
+              <label><input type="checkbox" value="laundry" name="amenities"> Laundry</label>
+              <label><input type="checkbox" value="kitchen" name="amenities"> Kitchen</label>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div id="browse-grid" class="grid"></div>
+      <div class="card-actions" style="margin-top: 20px;">
+        <button class="btn btn-muted" id="prev-page">Previous</button>
+        <button class="btn btn-muted" id="next-page">Next</button>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal" id="apply-modal" aria-hidden="true">
+    <div class="modal-card">
+      <h3>Apply for Boarding House</h3>
+      <p id="apply-bh-name" class="form-hint"></p>
+      <form id="apply-form">
+        <input type="hidden" id="apply-bh-id" name="bhId">
+        <div>
+          <label for="moveIn">Desired Move-in Date</label>
+          <input id="moveIn" name="moveIn" type="date" required>
+        </div>
+        <div>
+          <label for="duration">Duration (months)</label>
+          <input id="duration" name="duration" type="number" min="1" required>
+        </div>
+        <div>
+          <label for="requirements">Additional Requirements</label>
+          <textarea id="requirements" name="requirements"></textarea>
+        </div>
+        <p class="form-hint" data-status></p>
+        <div class="card-actions">
+          <button class="btn" type="submit">Submit Application</button>
+          <button class="btn btn-ghost" type="button" id="close-apply">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+  <script src="../assets/js/firebase-config.js"></script>
+  <script src="../assets/js/main.js"></script>
+  <script src="../assets/js/auth-check.js"></script>
+  <script src="user.js"></script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Management | Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+</head>
+<body data-page="admin-users">
+  <header class="header">
+    <div class="container nav">
+      <a class="logo" href="dashboard.html">Admin Panel</a>
+      <nav class="nav-links" aria-label="Admin">
+        <a href="dashboard.html">Overview</a>
+        <a href="boarding-houses.html">Boarding Houses</a>
+        <a href="users.html">Users</a>
+        <a href="../user/browse.html">Browse</a>
+      </nav>
+      <div class="nav-cta">
+        <span class="badge" data-user-badge>Admin</span>
+        <a class="btn btn-ghost" data-logout href="#">Logout</a>
+        <button class="nav-toggle" aria-label="Open menu">Menu</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="section">
+    <div class="container">
+      <div class="section-header">
+        <div>
+          <h2>User Management</h2>
+          <p>Promote, demote, or deactivate accounts.</p>
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <table class="table" aria-label="User list">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="user-table"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+  <script src="../assets/js/firebase-config.js"></script>
+  <script src="../assets/js/main.js"></script>
+  <script src="../assets/js/auth-check.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

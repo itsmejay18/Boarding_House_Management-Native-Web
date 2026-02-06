@@ -1,0 +1,74 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Dashboard | Native Boarding House</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+</head>
+<body data-page="user-dashboard">
+  <header class="header">
+    <div class="container nav">
+      <a class="logo" href="dashboard.html">User Portal</a>
+      <nav class="nav-links" aria-label="User">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="browse.html">Browse</a>
+      </nav>
+      <div class="nav-cta">
+        <span class="badge" data-user-badge>Account</span>
+        <a class="btn btn-ghost" data-logout href="#">Logout</a>
+        <button class="nav-toggle" aria-label="Open menu">Menu</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="section">
+    <div class="container">
+      <div class="section-header">
+        <div>
+          <h2>Your Dashboard</h2>
+          <p>Track applications, upload documents, and manage favorites.</p>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="card"><div class="card-body"><h3 class="card-title">Applications</h3><p id="user-app-count">0</p></div></div>
+        <div class="card"><div class="card-body"><h3 class="card-title">Favorites</h3><p id="user-fav-count">0</p></div></div>
+      </div>
+
+      <section class="section">
+        <div class="section-header">
+          <div>
+            <h2>Application Status</h2>
+            <p>Keep track of every request.</p>
+          </div>
+        </div>
+        <div id="user-applications"></div>
+      </section>
+
+      <section class="section">
+        <div class="section-header">
+          <div>
+            <h2>Saved Favorites</h2>
+            <p>Quickly reach the boarding houses you love.</p>
+          </div>
+        </div>
+        <div id="user-favorites" class="grid"></div>
+      </section>
+    </div>
+  </main>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+  <script src="../assets/js/firebase-config.js"></script>
+  <script src="../assets/js/main.js"></script>
+  <script src="../assets/js/auth-check.js"></script>
+  <script src="user.js"></script>
+</body>
+</html>

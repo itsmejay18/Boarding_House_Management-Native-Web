@@ -1,0 +1,107 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Native Boarding House Management System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/responsive.css">
+</head>
+<body data-page="landing">
+  <header class="header">
+    <div class="container nav">
+      <a class="logo" href="index.html">Native Boarding House</a>
+      <nav class="nav-links" aria-label="Primary">
+        <a href="index.html">Home</a>
+        <a href="user/browse.html">Browse</a>
+        <a href="auth/login.html">Login</a>
+        <a href="auth/register.html">Register</a>
+      </nav>
+      <div class="nav-cta">
+        <button class="nav-toggle" aria-label="Open menu">Menu</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="hero-card">
+          <h1 id="hero-title">Find a boarding house that feels like home.</h1>
+          <p id="hero-subtitle">Browse verified listings, compare amenities, and apply online with real-time updates from staff.</p>
+          <div class="card-actions">
+            <a class="btn" href="user/browse.html">Browse Listings</a>
+            <a class="btn btn-ghost" href="auth/register.html">Create Account</a>
+          </div>
+        </div>
+        <div class="hero-media">
+          <img id="hero-image" src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1200&q=80" alt="Boarding house interior">
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <h2>Featured Boarding Houses</h2>
+            <p>Handpicked spaces updated in real-time by our team.</p>
+          </div>
+        </div>
+        <div id="featured-grid" class="grid">
+          <div class="card">
+            <div class="card-body">
+              <div class="skeleton" style="height: 22px; width: 65%;"></div>
+              <div class="skeleton" style="height: 18px; width: 90%;"></div>
+              <div class="skeleton" style="height: 18px; width: 70%;"></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-body">
+              <div class="skeleton" style="height: 22px; width: 65%;"></div>
+              <div class="skeleton" style="height: 18px; width: 90%;"></div>
+              <div class="skeleton" style="height: 18px; width: 70%;"></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-body">
+              <div class="skeleton" style="height: 22px; width: 65%;"></div>
+              <div class="skeleton" style="height: 18px; width: 90%;"></div>
+              <div class="skeleton" style="height: 18px; width: 70%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div>
+        <h3>Native Boarding House</h3>
+        <p id="footer-text">Helping you find safe and comfortable boarding homes.</p>
+      </div>
+      <div>
+        <strong>Contact</strong>
+        <p>Email: <span id="contact-email">hello@nativebh.com</span></p>
+        <p>Phone: <span id="contact-phone">+63 900 000 0000</span></p>
+      </div>
+      <div>
+        <strong>Quick Links</strong>
+        <p><a href="auth/login.html">Login</a></p>
+        <p><a href="user/browse.html">Browse</a></p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+  <script src="assets/js/firebase-config.js"></script>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

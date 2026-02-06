@@ -1,0 +1,133 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Boarding Houses | Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+</head>
+<body data-page="admin-boarding-houses">
+  <header class="header">
+    <div class="container nav">
+      <a class="logo" href="dashboard.html">Admin Panel</a>
+      <nav class="nav-links" aria-label="Admin">
+        <a href="dashboard.html">Overview</a>
+        <a href="boarding-houses.html">Boarding Houses</a>
+        <a href="users.html">Users</a>
+        <a href="../user/browse.html">Browse</a>
+      </nav>
+      <div class="nav-cta">
+        <span class="badge" data-user-badge>Admin</span>
+        <a class="btn btn-ghost" data-logout href="#">Logout</a>
+        <button class="nav-toggle" aria-label="Open menu">Menu</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="section">
+    <div class="container">
+      <div class="section-header">
+        <div>
+          <h2>Boarding House Management</h2>
+          <p>Create, update, and feature listings.</p>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <form id="bh-form" enctype="multipart/form-data">
+          <input type="hidden" id="bhId" name="bhId">
+          <div class="form-grid">
+            <div>
+              <label for="bhName">Name</label>
+              <input id="bhName" name="bhName" type="text" required>
+            </div>
+            <div>
+              <label for="bhPrice">Price per Month</label>
+              <input id="bhPrice" name="bhPrice" type="number" min="0" required>
+            </div>
+            <div>
+              <label for="bhAddress">Address</label>
+              <input id="bhAddress" name="bhAddress" type="text" required>
+            </div>
+            <div>
+              <label for="bhContact">Contact Number</label>
+              <input id="bhContact" name="bhContact" type="text" required>
+            </div>
+          </div>
+          <div>
+            <label for="bhDescription">Description</label>
+            <textarea id="bhDescription" name="bhDescription" required></textarea>
+          </div>
+          <div class="form-grid">
+            <div>
+              <label for="bhRooms">Rooms</label>
+              <input id="bhRooms" name="bhRooms" type="number" min="1" required>
+            </div>
+            <div>
+              <label for="bhBathrooms">Bathrooms</label>
+              <input id="bhBathrooms" name="bhBathrooms" type="number" min="1" required>
+            </div>
+            <div>
+              <label for="bhFloorArea">Floor Area (sqm)</label>
+              <input id="bhFloorArea" name="bhFloorArea" type="number" min="1" required>
+            </div>
+            <div>
+              <label for="bhStatus">Status</label>
+              <select id="bhStatus" name="bhStatus" required>
+                <option value="available">Available</option>
+                <option value="occupied">Occupied</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label>Amenities</label>
+            <div class="tag-list">
+              <label><input type="checkbox" value="wifi" name="amenities"> Wifi</label>
+              <label><input type="checkbox" value="ac" name="amenities"> AC</label>
+              <label><input type="checkbox" value="parking" name="amenities"> Parking</label>
+              <label><input type="checkbox" value="laundry" name="amenities"> Laundry</label>
+              <label><input type="checkbox" value="kitchen" name="amenities"> Kitchen</label>
+            </div>
+          </div>
+          <div>
+            <label for="bhRules">Rules (one per line)</label>
+            <textarea id="bhRules" name="bhRules"></textarea>
+          </div>
+          <div>
+            <label for="bhImages">Upload Images</label>
+            <input id="bhImages" name="bhImages" type="file" accept="image/*" multiple>
+          </div>
+          <div>
+            <label><input type="checkbox" id="bhFeatured" name="bhFeatured"> Feature on landing page</label>
+          </div>
+          <p class="form-hint" data-status></p>
+          <button class="btn" type="submit">Save Boarding House</button>
+        </form>
+      </div>
+
+      <section class="section">
+        <div class="section-header">
+          <div>
+            <h2>Existing Listings</h2>
+            <p>Click a listing to edit or remove.</p>
+          </div>
+        </div>
+        <div id="bh-list" class="grid"></div>
+      </section>
+    </div>
+  </main>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+  <script src="../assets/js/firebase-config.js"></script>
+  <script src="../assets/js/main.js"></script>
+  <script src="../assets/js/auth-check.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
