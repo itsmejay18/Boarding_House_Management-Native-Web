@@ -1,4 +1,16 @@
-﻿const staffPage = document.body.dataset.page;
+import {
+  db,
+  dbRef,
+  get,
+  onValue,
+  push,
+  set,
+  update
+} from "../assets/js/firebase-config.js";
+import { showToast, formatCurrency } from "../assets/js/main.js";
+import { requireAuth } from "../assets/js/auth-check.js";
+
+const staffPage = document.body.dataset.page;
 
 function renderStaffBHCard(id, data) {
   const imageUrl = (data.images && data.images[0]) || "https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=900&q=80";
@@ -43,7 +55,7 @@ function initStaffDashboard() {
   requireAuth({ roles: ["staff", "admin"] }).then(({ user }) => {
     const list = document.getElementById("staff-bh-list");
 
-    db.ref("boardingHouses").on("value", (snapshot) => {
+    onValue(dbRef(db, "boardingHouses"), (snapshot) => {
       const data = snapshot.val() || {};
       list.innerHTML = Object.entries(data).map(([id, value]) => renderStaffBHCard(id, value)).join("");
     });
@@ -64,8 +76,8 @@ function initStaffDashboard() {
       };
 
       if (noteValue) {
-        const notesRef = db.ref(`boardingHouses/${bhId}/maintenanceNotes`).push();
-        await notesRef.set({
+        const notesRef = push(dbRef(db, `boardingHouses/${bhId}/maintenanceNotes`));
+        await set(notesRef, {
           note: noteValue,
           createdAt: Date.now(),
           createdBy: user.uid
@@ -73,7 +85,7 @@ function initStaffDashboard() {
         noteInput.value = "";
       }
 
-      await db.ref(`boardingHouses/${bhId}`).update(updates);
+      await update(dbRef(db, `boardingHouses/${bhId}`), updates);
       showToast("Boarding house updated.");
     });
   });
@@ -90,9 +102,9 @@ async function renderStaffApplications(container, apps, reviewerId) {
   }
 
   const cards = await Promise.all(entries.map(async ([id, app]) => {
-    const userSnap = await db.ref(`users/${app.userId}`).once("value");
+    const userSnap = await get(dbRef(db, `users/${app.userId}`));
     const user = userSnap.val() || {};
-    const bhSnap = await db.ref(`boardingHouses/${app.bhId}`).once("value");
+    const bhSnap = await get(dbRef(db, `boardingHouses/${app.bhId}`));
     const bh = bhSnap.val() || {};
 
     return `
@@ -118,13 +130,13 @@ async function renderStaffApplications(container, apps, reviewerId) {
       const appId = card.dataset.appId;
       const app = apps[appId];
       const reviewNote = window.prompt("Add a comment for the applicant (optional):") || "";
-      await db.ref(`applications/${appId}`).update({
+      await update(dbRef(db, `applications/${appId}`), {
         status: "approved",
         reviewedBy: reviewerId,
         reviewedAt: Date.now(),
         reviewNote
       });
-      await db.ref(`boardingHouses/${app.bhId}`).update({
+      await update(dbRef(db, `boardingHouses/${app.bhId}`), {
         status: "occupied",
         occupiedBy: app.userId,
         updatedAt: Date.now()
@@ -138,7 +150,7 @@ async function renderStaffApplications(container, apps, reviewerId) {
       const card = event.target.closest("[data-app-id]");
       const appId = card.dataset.appId;
       const reviewNote = window.prompt("Add a comment for the applicant (optional):") || "";
-      await db.ref(`applications/${appId}`).update({
+      await update(dbRef(db, `applications/${appId}`), {
         status: "rejected",
         reviewedBy: reviewerId,
         reviewedAt: Date.now(),
@@ -151,7 +163,7 @@ async function renderStaffApplications(container, apps, reviewerId) {
 
 function initStaffApplications() {
   requireAuth({ roles: ["staff", "admin"] }).then(({ user }) => {
-    db.ref("applications").on("value", (snapshot) => {
+    onValue(dbRef(db, "applications"), (snapshot) => {
       const apps = snapshot.val() || {};
       renderStaffApplications(document.getElementById("staff-applications"), apps, user.uid);
     });

@@ -1,4 +1,17 @@
-﻿const registerForm = document.getElementById("register-form");
+import {
+  auth,
+  db,
+  dbRef,
+  set,
+  get,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  sendEmailVerification,
+  signOut
+} from "../assets/js/firebase-config.js";
+import { setLoading, showToast, getQueryParam, routeByRole } from "../assets/js/main.js";
+
+const registerForm = document.getElementById("register-form");
 const loginForm = document.getElementById("login-form");
 
 function showFormError(container, message) {
@@ -36,10 +49,10 @@ async function handleRegister(event) {
 
   setLoading(form, true);
   try {
-    const credential = await auth.createUserWithEmailAndPassword(email, password);
+    const credential = await createUserWithEmailAndPassword(auth, email, password);
     const user = credential.user;
 
-    await db.ref(`users/${user.uid}`).set({
+    await set(dbRef(db, `users/${user.uid}`), {
       displayName: name,
       email,
       phone,
@@ -49,7 +62,7 @@ async function handleRegister(event) {
     });
 
     try {
-      await user.sendEmailVerification();
+      await sendEmailVerification(user);
     } catch (error) {
       console.warn("Email verification optional:", error.message);
     }
@@ -76,14 +89,14 @@ async function handleLogin(event) {
 
   setLoading(form, true);
   try {
-    const credential = await auth.signInWithEmailAndPassword(email, password);
+    const credential = await signInWithEmailAndPassword(auth, email, password);
     const user = credential.user;
 
-    const profileSnap = await db.ref(`users/${user.uid}`).once("value");
+    const profileSnap = await get(dbRef(db, `users/${user.uid}`));
     const profile = profileSnap.val();
 
     if (!profile || profile.status === "inactive") {
-      await auth.signOut();
+      await signOut(auth);
       showFormError(status, "Account inactive. Contact support.");
       return;
     }

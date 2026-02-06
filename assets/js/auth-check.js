@@ -1,8 +1,11 @@
-﻿function bindLogout() {
+import { auth, db, dbRef, get, onAuthStateChanged, signOut } from "./firebase-config.js";
+import { roleHome } from "./main.js";
+
+function bindLogout() {
   document.querySelectorAll("[data-logout]").forEach((button) => {
     button.addEventListener("click", async (event) => {
       event.preventDefault();
-      await auth.signOut();
+      await signOut(auth);
       window.location.href = "../index.html";
     });
   });
@@ -23,17 +26,17 @@ function requireAuth(options = {}) {
   const redirectTarget = encodeURIComponent(window.location.pathname + window.location.search);
 
   return new Promise((resolve) => {
-    auth.onAuthStateChanged(async (user) => {
+    onAuthStateChanged(auth, async (user) => {
       if (!user) {
         window.location.href = `${loginPath}?redirect=${redirectTarget}`;
         return;
       }
 
-      const snapshot = await db.ref(`users/${user.uid}`).once("value");
+      const snapshot = await get(dbRef(db, `users/${user.uid}`));
       const profile = snapshot.val();
 
       if (!profile || profile.status === "inactive") {
-        await auth.signOut();
+        await signOut(auth);
         window.location.href = loginPath;
         return;
       }
@@ -49,6 +52,8 @@ function requireAuth(options = {}) {
     });
   });
 }
+
+export { requireAuth };
 
 window.requireAuth = requireAuth;
 

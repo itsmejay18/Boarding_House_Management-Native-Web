@@ -1,4 +1,32 @@
-﻿const userPage = document.body.dataset.page;
+import {
+  auth,
+  db,
+  storage,
+  dbRef,
+  set,
+  get,
+  push,
+  onValue,
+  query,
+  orderByChild,
+  equalTo,
+  remove,
+  storageRef,
+  uploadBytes,
+  getDownloadURL,
+  onAuthStateChanged
+} from "../assets/js/firebase-config.js";
+import {
+  showToast,
+  setLoading,
+  formatCurrency,
+  readLocal,
+  storeLocal,
+  getQueryParam
+} from "../assets/js/main.js";
+import { requireAuth } from "../assets/js/auth-check.js";
+
+const userPage = document.body.dataset.page;
 let currentUser = null;
 
 function renderBrowseCard(id, data) {
@@ -46,7 +74,7 @@ function initBrowse() {
   let currentPage = 1;
   const pageSize = 6;
 
-  auth.onAuthStateChanged((user) => {
+  onAuthStateChanged(auth, (user) => {
     currentUser = user;
   });
 
@@ -56,7 +84,7 @@ function initBrowse() {
     applyFilters();
   }
 
-  db.ref("landingContent").once("value").then((snapshot) => {
+  get(dbRef(db, "landingContent")).then((snapshot) => {
     const content = snapshot.val();
     if (contactInfo && content) {
       contactInfo.textContent = `Need help? Contact support at ${content.contactEmail || "hello@nativebh.com"} or ${content.contactPhone || "+63 900 000 0000"}.`;
@@ -105,7 +133,7 @@ function initBrowse() {
     grid.innerHTML = pageItems.map(({ id, data }) => renderBrowseCard(id, data)).join("");
   }
 
-  db.ref("boardingHouses").on("value", (snapshot) => {
+  onValue(dbRef(db, "boardingHouses"), (snapshot) => {
     const data = snapshot.val() || {};
     allListings = Object.entries(data).map(([id, value]) => ({ id, data: value }));
     storeLocal("bhListings", allListings);
@@ -161,7 +189,7 @@ function initBrowse() {
         window.location.href = `../auth/login.html?redirect=${encodeURIComponent(window.location.pathname)}`;
         return;
       }
-      db.ref(`favorites/${currentUser.uid}/${bhId}`).set(true);
+      set(dbRef(db, `favorites/${currentUser.uid}/${bhId}`), true);
       showToast("Saved to favorites.");
     }
   });
@@ -180,9 +208,10 @@ function initBrowse() {
     setLoading(applyForm, true);
     statusEl.textContent = "";
     try {
-      const profileSnap = await db.ref(`users/${currentUser.uid}`).once("value");
+      const profileSnap = await get(dbRef(db, `users/${currentUser.uid}`));
       const profile = profileSnap.val() || {};
-      const appId = db.ref("applications").push().key;
+      const appRef = push(dbRef(db, "applications"));
+      const appId = appRef.key;
       const payload = {
         userId: currentUser.uid,
         userName: profile.displayName || "",
@@ -194,7 +223,7 @@ function initBrowse() {
         status: "pending",
         createdAt: Date.now()
       };
-      await db.ref(`applications/${appId}`).set(payload);
+      await set(appRef, payload);
       applyModal.classList.remove("open");
       applyForm.reset();
       showToast("Application submitted.");
@@ -217,7 +246,7 @@ async function renderUserApplications(container, apps) {
   }
 
   const cards = await Promise.all(entries.map(async ([id, app]) => {
-    const bhSnap = await db.ref(`boardingHouses/${app.bhId}`).once("value");
+    const bhSnap = await get(dbRef(db, `boardingHouses/${app.bhId}`));
     const bh = bhSnap.val() || {};
     return `
       <div class="form-card" data-app-id="${id}">
@@ -248,11 +277,11 @@ async function renderUserApplications(container, apps) {
         showToast("Select a document first.");
         return;
       }
-      const fileRef = storage.ref(`applications/${appId}/${Date.now()}_${file.name}`);
-      await fileRef.put(file);
-      const url = await fileRef.getDownloadURL();
-      const docRef = db.ref(`applications/${appId}/documents`).push();
-      await docRef.set({
+      const fileRef = storageRef(storage, `applications/${appId}/${Date.now()}_${file.name}`);
+      await uploadBytes(fileRef, file);
+      const url = await getDownloadURL(fileRef);
+      const docRef = push(dbRef(db, `applications/${appId}/documents`));
+      await set(docRef, {
         name: file.name,
         url,
         uploadedAt: Date.now()
@@ -272,7 +301,7 @@ async function renderFavorites(container, favorites) {
     container.innerHTML = "<p class=\"notice\">No favorites yet.</p>";
     return;
   }
-  const snapshot = await db.ref("boardingHouses").once("value");
+  const snapshot = await get(dbRef(db, "boardingHouses"));
   const data = snapshot.val() || {};
   const cards = ids.map((id) => {
     const bh = data[id];
@@ -302,7 +331,7 @@ async function renderFavorites(container, favorites) {
     button.addEventListener("click", async (event) => {
       const card = event.target.closest("[data-id]");
       const bhId = card.dataset.id;
-      await db.ref(`favorites/${currentUser.uid}/${bhId}`).remove();
+      await remove(dbRef(db, `favorites/${currentUser.uid}/${bhId}`));
       showToast("Removed from favorites.");
     });
   });
@@ -314,13 +343,19 @@ function initUserDashboard() {
     const appCount = document.getElementById("user-app-count");
     const favCount = document.getElementById("user-fav-count");
 
-    db.ref("applications").orderByChild("userId").equalTo(user.uid).on("value", (snapshot) => {
+    const appsQuery = query(
+      dbRef(db, "applications"),
+      orderByChild("userId"),
+      equalTo(user.uid)
+    );
+
+    onValue(appsQuery, (snapshot) => {
       const apps = snapshot.val() || {};
       appCount.textContent = Object.keys(apps).length;
       renderUserApplications(document.getElementById("user-applications"), apps);
     });
 
-    db.ref(`favorites/${user.uid}`).on("value", (snapshot) => {
+    onValue(dbRef(db, `favorites/${user.uid}`), (snapshot) => {
       const favorites = snapshot.val() || {};
       favCount.textContent = Object.keys(favorites).length;
       renderFavorites(document.getElementById("user-favorites"), favorites);

@@ -1,8 +1,25 @@
-﻿const page = document.body.dataset.page;
+import {
+  db,
+  storage,
+  dbRef,
+  set,
+  update,
+  remove,
+  get,
+  push,
+  onValue,
+  storageRef,
+  uploadBytes,
+  getDownloadURL
+} from "../assets/js/firebase-config.js";
+import { showToast, setLoading, formatCurrency } from "../assets/js/main.js";
+import { requireAuth } from "../assets/js/auth-check.js";
+
+const page = document.body.dataset.page;
 
 function createNotification(userId, message, type = "status") {
-  const ref = db.ref("notifications").push();
-  return ref.set({
+  const notificationRef = push(dbRef(db, "notifications"));
+  return set(notificationRef, {
     userId,
     message,
     type,
@@ -22,9 +39,9 @@ async function renderApplications(container, applications, currentUserId) {
   }
 
   const cards = await Promise.all(entries.map(async ([id, app]) => {
-    const userSnap = await db.ref(`users/${app.userId}`).once("value");
+    const userSnap = await get(dbRef(db, `users/${app.userId}`));
     const user = userSnap.val() || {};
-    const bhSnap = await db.ref(`boardingHouses/${app.bhId}`).once("value");
+    const bhSnap = await get(dbRef(db, `boardingHouses/${app.bhId}`));
     const bh = bhSnap.val() || {};
     const bhName = bh.name || app.bhId;
 
@@ -50,17 +67,17 @@ async function renderApplications(container, applications, currentUserId) {
       const card = event.target.closest("[data-app-id]");
       const appId = card.dataset.appId;
       const app = applications[appId];
-      const bhSnap = await db.ref(`boardingHouses/${app.bhId}`).once("value");
+      const bhSnap = await get(dbRef(db, `boardingHouses/${app.bhId}`));
       const bh = bhSnap.val() || {};
       const bhName = bh.name || app.bhId;
       const reviewNote = window.prompt("Add a comment for the applicant (optional):") || "";
-      await db.ref(`applications/${appId}`).update({
+      await update(dbRef(db, `applications/${appId}`), {
         status: "approved",
         reviewedBy: currentUserId,
         reviewedAt: Date.now(),
         reviewNote
       });
-      await db.ref(`boardingHouses/${app.bhId}`).update({
+      await update(dbRef(db, `boardingHouses/${app.bhId}`), {
         status: "occupied",
         occupiedBy: app.userId,
         updatedAt: Date.now()
@@ -75,11 +92,11 @@ async function renderApplications(container, applications, currentUserId) {
       const card = event.target.closest("[data-app-id]");
       const appId = card.dataset.appId;
       const app = applications[appId];
-      const bhSnap = await db.ref(`boardingHouses/${app.bhId}`).once("value");
+      const bhSnap = await get(dbRef(db, `boardingHouses/${app.bhId}`));
       const bh = bhSnap.val() || {};
       const bhName = bh.name || app.bhId;
       const reviewNote = window.prompt("Add a comment for the applicant (optional):") || "";
-      await db.ref(`applications/${appId}`).update({
+      await update(dbRef(db, `applications/${appId}`), {
         status: "rejected",
         reviewedBy: currentUserId,
         reviewedAt: Date.now(),
@@ -96,7 +113,7 @@ function initAdminDashboard() {
     const landingForm = document.getElementById("landing-form");
     const statusEl = landingForm?.querySelector("[data-status]");
 
-    db.ref("landingContent").on("value", (snapshot) => {
+    onValue(dbRef(db, "landingContent"), (snapshot) => {
       const data = snapshot.val() || {};
       if (landingForm) {
         landingForm.heroTitle.value = data.heroTitle || "";
@@ -122,7 +139,7 @@ function initAdminDashboard() {
           footerText: landingForm.footerText.value.trim(),
           updatedAt: Date.now()
         };
-        await db.ref("landingContent").set(payload);
+        await set(dbRef(db, "landingContent"), payload);
         statusEl.textContent = "Landing page updated.";
       } catch (error) {
         statusEl.textContent = error.message;
@@ -131,19 +148,19 @@ function initAdminDashboard() {
       }
     });
 
-    db.ref("boardingHouses").on("value", (snapshot) => {
+    onValue(dbRef(db, "boardingHouses"), (snapshot) => {
       const count = snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
       document.getElementById("stat-bh").textContent = count;
     });
 
-    db.ref("applications").on("value", (snapshot) => {
+    onValue(dbRef(db, "applications"), (snapshot) => {
       const apps = snapshot.val() || {};
       const pendingCount = Object.values(apps).filter((app) => app.status === "pending").length;
       document.getElementById("stat-apps").textContent = pendingCount;
       renderApplications(document.getElementById("admin-applications"), apps, user.uid);
     });
 
-    db.ref("users").on("value", (snapshot) => {
+    onValue(dbRef(db, "users"), (snapshot) => {
       const count = snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
       document.getElementById("stat-users").textContent = count;
     });
@@ -165,9 +182,10 @@ async function uploadImages(files, bhId) {
   if (!files || !files.length) {
     return [];
   }
-  const uploads = Array.from(files).map((file) => {
-    const fileRef = storage.ref(`boardingHouses/${bhId}/${Date.now()}_${file.name}`);
-    return fileRef.put(file).then(() => fileRef.getDownloadURL());
+  const uploads = Array.from(files).map(async (file) => {
+    const fileRef = storageRef(storage, `boardingHouses/${bhId}/${Date.now()}_${file.name}`);
+    await uploadBytes(fileRef, file);
+    return getDownloadURL(fileRef);
   });
   return Promise.all(uploads);
 }
@@ -202,7 +220,7 @@ function initAdminBoardingHouses() {
     const list = document.getElementById("bh-list");
     const statusEl = form.querySelector("[data-status]");
 
-    db.ref("boardingHouses").on("value", (snapshot) => {
+    onValue(dbRef(db, "boardingHouses"), (snapshot) => {
       const data = snapshot.val() || {};
       list.innerHTML = Object.entries(data).map(([id, value]) => renderAdminBHCard(id, value)).join("");
     });
@@ -218,11 +236,11 @@ function initAdminBoardingHouses() {
         if (!confirmed) {
           return;
         }
-        await db.ref(`boardingHouses/${bhId}`).remove();
+        await remove(dbRef(db, `boardingHouses/${bhId}`));
         showToast("Listing deleted.");
       }
       if (event.target.matches("[data-edit]")) {
-        const snapshot = await db.ref(`boardingHouses/${bhId}`).once("value");
+        const snapshot = await get(dbRef(db, `boardingHouses/${bhId}`));
         const data = snapshot.val();
         if (!data) {
           return;
@@ -256,7 +274,10 @@ function initAdminBoardingHouses() {
       setLoading(form, true);
 
       try {
-        const bhId = form.bhId.value || db.ref("boardingHouses").push().key;
+        const bhRef = form.bhId.value
+          ? dbRef(db, `boardingHouses/${form.bhId.value}`)
+          : push(dbRef(db, "boardingHouses"));
+        const bhId = form.bhId.value || bhRef.key;
         const existingImages = form.dataset.images ? JSON.parse(form.dataset.images) : [];
         const newImages = await uploadImages(form.bhImages.files, bhId);
         const combinedImages = [...existingImages, ...newImages];
@@ -283,11 +304,11 @@ function initAdminBoardingHouses() {
           payload.createdAt = Date.now();
         }
 
-        await db.ref(`boardingHouses/${bhId}`).update(payload);
+        await update(bhRef, payload);
 
         const previousPrice = Number(form.dataset.previousPrice);
         if (!Number.isNaN(previousPrice) && previousPrice && previousPrice !== payload.price) {
-          const favoritesSnap = await db.ref("favorites").once("value");
+          const favoritesSnap = await get(dbRef(db, "favorites"));
           const favorites = favoritesSnap.val() || {};
           const impactedUsers = Object.keys(favorites).filter((uid) => favorites[uid] && favorites[uid][bhId]);
           await Promise.all(impactedUsers.map((uid) => createNotification(uid, `Price updated for ${payload.name}: ${formatCurrency(payload.price)}.`)));
@@ -310,7 +331,7 @@ function initAdminUsers() {
   requireAuth({ roles: ["admin"] }).then(() => {
     const tableBody = document.getElementById("user-table");
 
-    db.ref("users").on("value", (snapshot) => {
+    onValue(dbRef(db, "users"), (snapshot) => {
       const users = snapshot.val() || {};
       tableBody.innerHTML = Object.entries(users).map(([id, user]) => {
         return `
@@ -346,7 +367,7 @@ function initAdminUsers() {
       const uid = row.dataset.id;
       const role = row.querySelector("[data-role]").value;
       const status = row.querySelector("[data-status]").value;
-      await db.ref(`users/${uid}`).update({ role, status, updatedAt: Date.now() });
+      await update(dbRef(db, `users/${uid}`), { role, status, updatedAt: Date.now() });
       showToast("User updated.");
     });
   });

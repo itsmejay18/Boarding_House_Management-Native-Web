@@ -1,24 +1,81 @@
-﻿// Firebase configuration - replace with your project credentials
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-analytics.js";
+import {
+  getAuth,
+  setPersistence,
+  browserLocalPersistence,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  sendEmailVerification,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+import {
+  getDatabase,
+  ref as dbRef,
+  set,
+  update,
+  remove,
+  get,
+  push,
+  onValue,
+  query,
+  orderByChild,
+  equalTo
+} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
+import {
+  getStorage,
+  ref as storageRef,
+  uploadBytes,
+  getDownloadURL
+} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-storage.js";
+
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  databaseURL: "https://YOUR_PROJECT.firebaseio.com",
-  projectId: "YOUR_PROJECT",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyCR9POiczG3jVWuapd27V_BhpI8u9zU4oY",
+  authDomain: "bh-database-4b16e.firebaseapp.com",
+  databaseURL: "https://bh-database-4b16e-default-rtdb.firebaseio.com",
+  projectId: "bh-database-4b16e",
+  storageBucket: "bh-database-4b16e.firebasestorage.app",
+  messagingSenderId: "587954237010",
+  appId: "1:587954237010:web:7f10162fcf0d348304398b",
+  measurementId: "G-3B4WWB9ZW1"
 };
 
-firebase.initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
 
-const auth = firebase.auth();
-const db = firebase.database();
-const storage = firebase.storage();
+let analytics = null;
+try {
+  analytics = getAnalytics(app);
+} catch (error) {
+  // Analytics is optional and can fail on unsupported environments.
+}
 
-auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+const auth = getAuth(app);
+const db = getDatabase(app);
+const storage = getStorage(app);
 
-window.firebaseApp = firebase.app();
-window.auth = auth;
-window.db = db;
-window.storage = storage;
-window.firebaseRef = (path) => db.ref(path);
+setPersistence(auth, browserLocalPersistence).catch(() => {
+  // Persistence is optional; ignore failures (e.g. private browsing).
+});
+
+export { app, analytics, auth, db, storage };
+export {
+  dbRef,
+  set,
+  update,
+  remove,
+  get,
+  push,
+  onValue,
+  query,
+  orderByChild,
+  equalTo,
+  storageRef,
+  uploadBytes,
+  getDownloadURL,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  sendEmailVerification,
+  onAuthStateChanged,
+  signOut
+};

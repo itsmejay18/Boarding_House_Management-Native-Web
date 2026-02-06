@@ -1,4 +1,6 @@
-﻿const currencyFormatter = new Intl.NumberFormat("en-PH", {
+import { db, dbRef, get, onValue, query, orderByChild, equalTo } from "./firebase-config.js";
+
+const currencyFormatter = new Intl.NumberFormat("en-PH", {
   style: "currency",
   currency: "PHP",
   maximumFractionDigits: 0
@@ -126,11 +128,11 @@ function loadLandingContent() {
   const cached = readLocal("landingContent");
   applyContent(cached);
 
-  if (!window.db) {
+  if (!db) {
     return;
   }
 
-  db.ref("landingContent").on("value", (snapshot) => {
+  onValue(dbRef(db, "landingContent"), (snapshot) => {
     const content = snapshot.val();
     applyContent(content);
     storeLocal("landingContent", content);
@@ -163,7 +165,13 @@ function loadFeaturedBoardingHouses() {
     renderList(cached);
   }
 
-  db.ref("boardingHouses").orderByChild("featured").equalTo(true).on("value", (snapshot) => {
+  const featuredQuery = query(
+    dbRef(db, "boardingHouses"),
+    orderByChild("featured"),
+    equalTo(true)
+  );
+
+  onValue(featuredQuery, (snapshot) => {
     const data = snapshot.val();
     if (data) {
       storeLocal("featuredBoardingHouses", data);
@@ -201,11 +209,23 @@ function roleHome(role) {
 }
 
 async function routeByRole(user) {
-  const profileSnapshot = await db.ref(`users/${user.uid}`).once("value");
+  const profileSnapshot = await get(dbRef(db, `users/${user.uid}`));
   const profile = profileSnapshot.val() || {};
   const role = profile.role || "user";
   window.location.href = roleHome(role);
 }
+
+export {
+  showToast,
+  setLoading,
+  formatCurrency,
+  renderBoardingHouseCard,
+  roleHome,
+  routeByRole,
+  getQueryParam,
+  storeLocal,
+  readLocal
+};
 
 window.showToast = showToast;
 window.setLoading = setLoading;
