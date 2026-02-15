@@ -30,6 +30,30 @@ function clearFormError(container) {
   container.classList.remove("notice");
 }
 
+function enableDemoMode() {
+  try {
+    localStorage.setItem("demoMode", "1");
+  } catch (error) {
+    // ignore
+  }
+  const url = new URL(window.location.href);
+  url.searchParams.set("demo", "1");
+  window.location.href = url.toString();
+}
+
+function maybeEnableDemo(error) {
+  const code = error?.code || "";
+  if (
+    code === "auth/configuration-not-found" ||
+    code === "auth/invalid-api-key" ||
+    code === "auth/project-not-found"
+  ) {
+    enableDemoMode();
+    return true;
+  }
+  return false;
+}
+
 async function handleRegister(event) {
   event.preventDefault();
   const form = event.target;
@@ -72,6 +96,9 @@ async function handleRegister(event) {
       window.location.href = "../user/dashboard.html";
     }, 900);
   } catch (error) {
+    if (maybeEnableDemo(error)) {
+      return;
+    }
     showFormError(status, error.message);
   } finally {
     setLoading(form, false);
@@ -109,6 +136,9 @@ async function handleLogin(event) {
 
     await routeByRole(user);
   } catch (error) {
+    if (maybeEnableDemo(error)) {
+      return;
+    }
     showFormError(status, error.message);
   } finally {
     setLoading(form, false);
@@ -122,3 +152,31 @@ if (registerForm) {
 if (loginForm) {
   loginForm.addEventListener("submit", handleLogin);
 }
+
+function initFirebaseDebugPanel() {
+  if (getQueryParam("debug") !== "1") {
+    return;
+  }
+
+  const options = auth?.app?.options || {};
+  const panel = document.createElement("div");
+  panel.className = "form-card";
+  panel.style.marginTop = "16px";
+  panel.innerHTML = `
+    <h3>Firebase Debug</h3>
+    <p class="form-hint">Loaded from firebase-config.js:</p>
+    <p class="form-hint"><strong>projectId</strong>: ${options.projectId || "-"}</p>
+    <p class="form-hint"><strong>authDomain</strong>: ${options.authDomain || "-"}</p>
+    <p class="form-hint"><strong>apiKey</strong>: ${options.apiKey ? options.apiKey.slice(0, 6) + "..." : "-"}</p>
+    <p class="form-hint"><strong>appId</strong>: ${options.appId || "-"}</p>
+    <p class="form-hint"><strong>host</strong>: ${window.location.host}</p>
+    <p class="form-hint">If these do not match your Firebase project, update assets/js/firebase-config.js.</p>
+  `;
+
+  const container = document.querySelector(".container");
+  if (container) {
+    container.appendChild(panel);
+  }
+}
+
+initFirebaseDebugPanel();

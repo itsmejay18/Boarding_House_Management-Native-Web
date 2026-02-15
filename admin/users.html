@@ -36,6 +36,48 @@
           <p>Promote, demote, or deactivate accounts.</p>
         </div>
       </div>
+      <div class="form-card" style="margin-bottom: 24px;">
+        <h3>Create User</h3>
+        <p class="form-hint">Create admin, staff, or tenant accounts without leaving the dashboard.</p>
+        <form id="create-user-form" novalidate>
+          <div class="form-grid">
+            <div>
+              <label for="create-fullName">Full Name</label>
+              <input id="create-fullName" name="fullName" type="text" required>
+            </div>
+            <div>
+              <label for="create-email">Email</label>
+              <input id="create-email" name="email" type="email" autocomplete="email" required>
+            </div>
+            <div>
+              <label for="create-phone">Phone</label>
+              <input id="create-phone" name="phone" type="text">
+            </div>
+            <div>
+              <label for="create-role">Role</label>
+              <select id="create-role" name="role" required>
+                <option value="user">Tenant</option>
+                <option value="staff">Staff</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label for="create-password">Temporary Password</label>
+            <input id="create-password" name="password" type="password" minlength="6" required>
+          </div>
+          <p class="form-hint" data-status></p>
+          <button class="btn" type="submit">Create User</button>
+        </form>
+        <div style="margin-top: 16px;">
+          <strong>Sample Users (Optional)</strong>
+          <p class="form-hint">Admin: admin@nativebh.test / password</p>
+          <p class="form-hint">Staff: staff@nativebh.test / password</p>
+          <p class="form-hint">Tenant: tenant@nativebh.test / password</p>
+          <button class="btn btn-ghost" type="button" id="seed-users-btn">Create Sample Users</button>
+          <p class="form-hint" data-seed-status></p>
+        </div>
+      </div>
       <div class="table-wrapper">
         <table class="table" aria-label="User list">
           <thead>

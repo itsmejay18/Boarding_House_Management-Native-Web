@@ -10,12 +10,38 @@ import {
   onValue,
   storageRef,
   uploadBytes,
-  getDownloadURL
+  getDownloadURL,
+  createUserWithEmailAndPassword,
+  signOut,
+  getSecondaryAuth
 } from "../assets/js/firebase-config.js";
 import { showToast, setLoading, formatCurrency } from "../assets/js/main.js";
 import { requireAuth } from "../assets/js/auth-check.js";
 
 const page = document.body.dataset.page;
+const SEED_USERS = [
+  {
+    displayName: "Native Admin",
+    email: "admin@nativebh.test",
+    phone: "",
+    role: "admin",
+    password: "password"
+  },
+  {
+    displayName: "Native Staff",
+    email: "staff@nativebh.test",
+    phone: "",
+    role: "staff",
+    password: "password"
+  },
+  {
+    displayName: "Native Tenant",
+    email: "tenant@nativebh.test",
+    phone: "",
+    role: "user",
+    password: "password"
+  }
+];
 
 function createNotification(userId, message, type = "status") {
   const notificationRef = push(dbRef(db, "notifications"));
@@ -330,6 +356,9 @@ function initAdminBoardingHouses() {
 function initAdminUsers() {
   requireAuth({ roles: ["admin"] }).then(() => {
     const tableBody = document.getElementById("user-table");
+    const createForm = document.getElementById("create-user-form");
+    const seedButton = document.getElementById("seed-users-btn");
+    const seedStatus = document.querySelector("[data-seed-status]");
 
     onValue(dbRef(db, "users"), (snapshot) => {
       const users = snapshot.val() || {};
@@ -370,6 +399,121 @@ function initAdminUsers() {
       await update(dbRef(db, `users/${uid}`), { role, status, updatedAt: Date.now() });
       showToast("User updated.");
     });
+
+    async function createUserAccount(data) {
+      const secondaryAuth = getSecondaryAuth();
+      const email = data.email.trim().toLowerCase();
+      const displayName = data.displayName || email;
+      const phone = data.phone || "";
+      const role = data.role || "user";
+      const password = data.password;
+
+      try {
+        const credential = await createUserWithEmailAndPassword(secondaryAuth, email, password);
+        await set(dbRef(db, `users/${credential.user.uid}`), {
+          displayName,
+          email,
+          phone,
+          role,
+          status: "active",
+          createdAt: Date.now()
+        });
+        return { ok: true, email };
+      } catch (error) {
+        return { ok: false, email, error };
+      } finally {
+        try {
+          await signOut(secondaryAuth);
+        } catch (error) {
+          // Ignore sign-out errors on secondary auth.
+        }
+      }
+    }
+
+    if (createForm) {
+      createForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const statusEl = createForm.querySelector("[data-status]");
+        statusEl.textContent = "";
+
+        const payload = {
+          displayName: createForm.elements["fullName"].value.trim(),
+          email: createForm.elements["email"].value.trim(),
+          phone: createForm.elements["phone"].value.trim(),
+          role: createForm.elements["role"].value,
+          password: createForm.elements["password"].value
+        };
+
+        if (!payload.email || !payload.password) {
+          statusEl.textContent = "Email and password are required.";
+          return;
+        }
+
+        setLoading(createForm, true);
+        const result = await createUserAccount(payload);
+        setLoading(createForm, false);
+
+        if (result.ok) {
+          statusEl.textContent = `User created: ${result.email}`;
+          createForm.reset();
+          showToast("User created.");
+          return;
+        }
+
+        if (result.error?.code === "auth/email-already-in-use") {
+          statusEl.textContent = "Email already in use.";
+          return;
+        }
+
+        statusEl.textContent = result.error?.message || "Unable to create user.";
+      });
+    }
+
+    if (seedButton) {
+      seedButton.addEventListener("click", async () => {
+        seedButton.disabled = true;
+        if (seedStatus) {
+          seedStatus.textContent = "Creating sample users...";
+        }
+
+        const created = [];
+        const skipped = [];
+        const failed = [];
+
+        for (const seed of SEED_USERS) {
+          const result = await createUserAccount(seed);
+          if (result.ok) {
+            created.push(result.email);
+            continue;
+          }
+          if (result.error?.code === "auth/email-already-in-use") {
+            skipped.push(result.email);
+            continue;
+          }
+          failed.push(result.email);
+        }
+
+        const parts = [];
+        if (created.length) {
+          parts.push(`Created: ${created.join(", ")}`);
+        }
+        if (skipped.length) {
+          parts.push(`Existing: ${skipped.join(", ")}`);
+        }
+        if (failed.length) {
+          parts.push(`Failed: ${failed.join(", ")}`);
+        }
+
+        if (seedStatus) {
+          seedStatus.textContent = parts.length ? parts.join(" | ") : "No users processed.";
+        }
+
+        seedButton.disabled = false;
+        if (created.length) {
+          showToast("Sample users created.");
+        }
+      });
+    }
   });
 }
 

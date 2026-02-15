@@ -1,4 +1,4 @@
-import { db, dbRef, get, onValue, query, orderByChild, equalTo } from "./firebase-config.js";
+import { db, dbRef, get, onValue, query, orderByChild, equalTo, isDemoMode } from "./firebase-config.js";
 
 const currencyFormatter = new Intl.NumberFormat("en-PH", {
   style: "currency",
@@ -86,6 +86,21 @@ function initNav() {
       navLinks.classList.toggle("open");
     });
   }
+}
+
+function renderDemoBadge() {
+  if (!isDemoMode) {
+    return;
+  }
+  document.body.dataset.demo = "true";
+  const navCta = document.querySelector(".nav-cta");
+  if (!navCta) {
+    return;
+  }
+  const badge = document.createElement("span");
+  badge.className = "badge";
+  badge.textContent = "Demo Mode";
+  navCta.prepend(badge);
 }
 
 function storeLocal(key, data) {
@@ -237,6 +252,7 @@ window.getQueryParam = getQueryParam;
 
 document.addEventListener("DOMContentLoaded", () => {
   initNav();
+  renderDemoBadge();
   if (document.body.dataset.page === "landing") {
     loadLandingContent();
     loadFeaturedBoardingHouses();
